@@ -44,4 +44,10 @@ async def create_dino(dino:DinoModel):
         "inserted_dino": dino
     }
 
-# GET dino by ID (path param)
+# GET a certain amount of dinos (query param)
+# This will return 2 dinos unless specified in the request
+@router.get("/some_dinos")
+async def get_some_dinos(limit:int=2):
+
+    # Turn the map into a list and return the specified amount
+    return list(dino_database.values())[:limit]
