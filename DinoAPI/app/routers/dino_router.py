@@ -14,19 +14,34 @@ router = APIRouter(
 )
 
 # Dinky Python map database (check the user_router for endpoints that hit a REAL DB)
-
+dino_database = {
+    1: DinoModel(id=1, species="T Rex", period="Cretaceous"),
+    2: DinoModel(id=2, species="Velociraptor", period="Cretaceous")
+}
 
 # Some endpoints-------------------
 
 # GET all dinos
 @router.get("/")
 async def get_all_dinos():
-    return "[here's where I'd return my dinos... IF I HAD SOME]"
+    return dino_database
 
 
 # POST a new dino to the DB - note the use of our DinoModel in the args
 @router.post("/", status_code=201) # 201 CREATED - good for successful data insertion
 async def create_dino(dino:DinoModel):
-    return dino.species + " created!"
+
+    # TODO: some input validation would be good. Unique names only?
+
+    # Give the dino an auto-incremented ID (just length of map + 1)
+    dino.id = len(dino_database) + 1
+
+    # Store the dino in the DB
+    dino_database[dino.id] = dino
+
+    return {
+        "message": dino.species + " created!",
+        "inserted_dino": dino
+    }
 
 # GET dino by ID (path param)
