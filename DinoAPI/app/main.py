@@ -1,0 +1,15 @@
+from fastapi import FastAPI
+
+from app.routers import dino_router
+
+# Set up our FastAPI instance.
+# This "app" variable will be used to do FastAPI stuff like defining endpoints and routers
+app = FastAPI()
+
+# REGISTER my routers (so they actually show up in SwaggerUI)
+app.include_router(dino_router.router)
+
+# Generic sample endpoint (greeting GET request)
+@app.get("/")
+async def sample_endpoint():
+    return {"message":"Hello from FastAPI!"}
