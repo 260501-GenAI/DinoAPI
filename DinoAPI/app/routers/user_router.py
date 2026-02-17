@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.user_db_model import UserDBModel, CreateUserModel
@@ -35,3 +35,17 @@ async def create_user(new_user:CreateUserModel, db: Session = Depends(get_db)):
 @router.get("/")
 async def get_all_users(db: Session = Depends(get_db)):
     return db.query(UserDBModel).all()
+
+# Get one user by ID (path param)
+@router.get("/by_id/{user_id}")
+async def get_user_by_id(user_id:int, db: Session = Depends(get_db)):
+    # Filter the ResultSet to only include the user with the given id.
+    # first() returns the first result of the query... there should only be one
+    user = db.query(UserDBModel).filter(UserDBModel.id == user_id).first()
+
+    # Some basic error handling for user not found
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found!")
+
+    # If the user is found, return it
+    return user
