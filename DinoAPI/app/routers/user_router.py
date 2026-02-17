@@ -49,3 +49,30 @@ async def get_user_by_id(user_id:int, db: Session = Depends(get_db)):
 
     # If the user is found, return it
     return user
+
+# Update user by ID
+@router.put("/{user_id}")
+async def update_user(user_id:int, updated_user: CreateUserModel, db: Session = Depends(get_db)):
+
+    # First, we need to check if the user exists
+    user = db.query(UserDBModel).filter(UserDBModel.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found!")
+
+    # If the user exists, we can update their info with the incoming data
+    user.username = updated_user.username
+    user.password = updated_user.password
+
+    # Commit the changes to the DB
+    db.commit()
+    db.refresh(user)
+
+    # Return the user!
+    return user
+
+
+# TODO: delete user by ID
+
+
+#TODO: RAG with our LLM and user data
