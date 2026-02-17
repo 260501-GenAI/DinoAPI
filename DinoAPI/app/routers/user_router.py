@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.models.user_db_model import UserDBModel
 from app.models.user_model import UserModel
 from app.services.db_connection import get_db
 
@@ -15,6 +16,22 @@ router = APIRouter(
 # Insert User
 @router.post("/")
 async def create_user(new_user:UserModel, db: Session = Depends(get_db)):
-    # You can check the sql_ops router in the EvilScientist API V2 for examples
-    pass
 
+    # Extract the incoming user data into a format that the DB can accept
+    # **? this unpacks the data into a dict which we convert to a UserDBModel
+    user = UserDBModel(**new_user.model_dump())
+
+    # Add and commit the new user to the DB
+    db.add(user)
+    db.commit()
+
+    # Refresh the user variable, which overwrites it with what went into the DB
+    db.refresh(user)
+
+    return user # Send the new User back to the client (SwaggerUI in this case)
+
+
+# Get all users
+@router.get()
+async def get_all_users(db: Session = Depends(get_db)):
+    return db.query(UserDBModel).all()
