@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.models.user_db_model import UserDBModel
+from app.models.user_db_model import UserDBModel, CreateUserModel
 from app.models.user_model import UserModel
 from app.services.db_connection import get_db
 
@@ -15,7 +15,7 @@ router = APIRouter(
 
 # Insert User
 @router.post("/")
-async def create_user(new_user:UserModel, db: Session = Depends(get_db)):
+async def create_user(new_user:CreateUserModel, db: Session = Depends(get_db)):
 
     # Extract the incoming user data into a format that the DB can accept
     # **? this unpacks the data into a dict which we convert to a UserDBModel
@@ -32,6 +32,6 @@ async def create_user(new_user:UserModel, db: Session = Depends(get_db)):
 
 
 # Get all users
-@router.get()
+@router.get("/")
 async def get_all_users(db: Session = Depends(get_db)):
     return db.query(UserDBModel).all()

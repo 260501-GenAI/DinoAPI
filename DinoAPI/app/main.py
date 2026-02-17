@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import dino_router
+from app.routers import dino_router, user_router
 from app.services.db_connection import Base, engine
 
 # Create the DB tables on startup (if they don't already exist)
@@ -12,6 +12,7 @@ app = FastAPI()
 
 # REGISTER my routers (so they actually show up in SwaggerUI)
 app.include_router(dino_router.router)
+app.include_router(user_router.router)
 
 # Generic sample endpoint (greeting GET request)
 @app.get("/")

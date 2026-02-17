@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 
 from app.services.db_connection import Base
@@ -15,6 +16,12 @@ class UserDBModel(Base):
     password = Column(String, nullable=False)
 
 
-    # TODO: separate models for data input and output
+# A Pydantic model for inserting users (no ID, string password instead of SecretStr)
+class CreateUserModel(BaseModel):
+    username:str
+    password:str
+
+
+    # TODO: another model for returning users (leave out the password)
 
 
