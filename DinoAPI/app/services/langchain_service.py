@@ -32,6 +32,25 @@ def get_basic_chain():
     chain = prompt | llm
     return chain # Return an invokable chain! Check it out in our langchain_ops router
 
-# TODO: Sequential chain that adds an extra step in the to refine the initial response
+# Sequential chain that adds an extra step in the to refine the initial response
+def get_sequential_chain():
+
+    # First chain - just a basic prompt to the LLM. Using the OG members from above
+    draft_chain = prompt | llm
+
+    # Define a new prompt to help us refine the initial answer
+    # In this case, we want a more concise and professional answer. No crazy rambling
+    improved_prompt = ChatPromptTemplate.from_messages([
+        ("system",
+         """You are a stoic and professional chatbot. 
+         You take raw LLM answers and refine them to be more concise and professional.
+         Format your text generation in 3 or less sentences. 
+         Share the refined answer, followed by the original answer"""),
+        ("user", "{input}")
+    ])
+
+    # Make the second chain using the refined prompt
+
+    # Finally, the sequential part - combine the 2 chains and return the final chain!
 
 # TODO: A Chain that stores memory so it can recall what was being talking
