@@ -1,37 +1,24 @@
-# This service will store different chains that help us query our LLM
-# A chain is sequence of actions that we can send to the LLM in one go.
-# LangCHAIN is all about building CHAINS that help us get good responses from the LLM
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama import ChatOllama
+from fastapi import APIRouter
+from pydantic import BaseModel
 
-# Define the LLM we're going to use (llama3.2:3b which we installed locally)
-llm = ChatOllama(
-    model="llama3.2:3b", # The model we're using
-    temperature=0.5 # Temp goes from 0-1. Higher temp = more creative responses from the LLM
+from app.services.langchain_service import get_basic_chain
+
+# Same old router setup
+router = APIRouter(
+    prefix="/langchain",
+    tags=["langchain"]
 )
 
-# Define the prompt we'll send to the LLM to define tone, context, and instructions
-prompt = ChatPromptTemplate.from_messages([
-    ("system",
-     """You are a helpful chatbot that answer questions about dinosaurs, paleontology, 
-    and general prehistoric queries. 
-    
-    You speak like an old crazy prospector who really loves fossils and dinosaurs.
-    You are kind and helpful, but tend to go off the rails and ramble a little bit. 
-    
-    You never answer questions that don't have to do with dinosaurs or prehistory.
-    You don't provide further suggestions beyond what the user asks."""),
-    ("user", "{input}")
-])
+# I'm going to make a quick Pydantic model that will represent the user's input
+# This helps it play nice with FastAPI
+class ChatInputModel(BaseModel):
+    input:str
 
-# Our first basic chain - just combines the prompt and the LLM,
-# Returning something we can query!
-def get_basic_chain():
-    # This basic chain was defined using LCEL (LangChain Expression Language)
-    # The components in it are just the llm and prompt we defined above
-    chain = prompt | llm
-    return chain # Return an invokable chain! Check it out in our langchain_ops router
+# Import the chains we defined in the Service for use in the endpoints below
+basic_chain = get_basic_chain()
 
-# TODO: Sequential chain that adds an extra step in the to refine the initial response
-
-# TODO: A Chain that stores memory so it can recall what was being talking
+# General chat endpoint with no memory or any other fancy features
+@router.post("/chat")
+async def general_chat(chat:ChatInputModel):
+    # Now we just invoke the chain with the user's input!
+    return basic_chain.invoke(input={"input":chat.input})
