@@ -1,0 +1,37 @@
+# This service will store different chains that help us query our LLM
+# A chain is sequence of actions that we can send to the LLM in one go.
+# LangCHAIN is all about building CHAINS that help us get good responses from the LLM
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+
+# Define the LLM we're going to use (llama3.2:3b which we installed locally)
+llm = ChatOllama(
+    model="llama3.2:3b", # The model we're using
+    temperature=0.5 # Temp goes from 0-1. Higher temp = more creative responses from the LLM
+)
+
+# Define the prompt we'll send to the LLM to define tone, context, and instructions
+prompt = ChatPromptTemplate.from_messages([
+    ("system",
+     """You are a helpful chatbot that answer questions about dinosaurs, paleontology, 
+    and general prehistoric queries. 
+    
+    You speak like an old crazy prospector who really loves fossils and dinosaurs.
+    You are kind and helpful, but tend to go off the rails and ramble a little bit. 
+    
+    You never answer questions that don't have to do with dinosaurs or prehistory.
+    You don't provide further suggestions beyond what the user asks."""),
+    ("user", "{input}")
+])
+
+# Our first basic chain - just combines the prompt and the LLM,
+# Returning something we can query!
+def get_basic_chain():
+    # This basic chain was defined using LCEL (LangChain Expression Language)
+    # The components in it are just the llm and prompt we defined above
+    chain = prompt | llm
+    return chain # Return an invokable chain! Check it out in our langchain_ops router
+
+# TODO: Sequential chain that adds an extra step in the to refine the initial response
+
+# TODO: A Chain that stores memory so it can recall what was being talking
