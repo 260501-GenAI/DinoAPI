@@ -72,7 +72,20 @@ async def update_user(user_id:int, updated_user: CreateUserModel, db: Session = 
     return user
 
 
-# TODO: delete user by ID
+# Delete user by ID
+@router.delete("/{user_id}")
+async def delete_user(user_id:int, db: Session = Depends(get_db)):
+    # Check if the user exists
+    user = db.query(UserDBModel).filter(UserDBModel.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found!")
+
+    # If the user exists, delete them
+    db.delete(user)
+    db.commit()
+
+    return {"message": f"User with ID {user_id} deleted!"}
 
 
 #TODO: RAG with our LLM and user data
