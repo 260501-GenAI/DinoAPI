@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.user_db_model import UserDBModel, CreateUserModel
 from app.models.user_model import UserModel
 from app.services.db_connection import get_db
+from app.services.langchain_service import get_basic_chain
 
 # Same old Router Setup
 router = APIRouter(
@@ -88,4 +89,29 @@ async def delete_user(user_id:int, db: Session = Depends(get_db)):
     return {"message": f"User with ID {user_id} deleted!"}
 
 
-#TODO: RAG with our LLM and user data
+# RAG (Retrieval Augmented Generated) with our LLM and user data
+# AUGMENTING the GENERATED response based on some data we're RETRIEVING
+@router.post("/rag")
+async def users_rag(user_input:str, db: Session = Depends(get_db)):
+
+    # NOTE: we didn't make user_input a Pydantic model
+    # ...which is fine, but the user's question will come in as a query param
+        # (Instead of a value in the request body)
+
+    # Get all users, convert the info to a string (easier for the LLM)
+    users = db.query(UserDBModel).all()
+    user_info = "\n".join([f"ID: {user.id}, Username: {user.username}" for user in users])
+    # This^ looks like: ID: 1, Username: user1
+
+    # Get the basic chain from the langchain service
+    chain = get_basic_chain()
+
+    # Ask the LLM a question based on that user info
+    response = chain.invoke(
+        {"input": f"""Here is some information about users in our database: {user_info}
+            Based on this information, answer the user's query: {user_input} """}
+    )
+
+    # Return the LLM's response!
+    return response
+
