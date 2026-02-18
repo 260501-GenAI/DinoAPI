@@ -40,7 +40,7 @@ def get_sequential_chain():
 
     # Define a new prompt to help us refine the initial answer
     # In this case, we want a more concise and professional answer. No crazy rambling
-    improved_prompt = ChatPromptTemplate.from_messages([
+    refined_prompt = ChatPromptTemplate.from_messages([
         ("system",
          """You are a stoic and professional chatbot. 
          You take raw LLM answers and refine them to be more concise and professional.
@@ -50,7 +50,10 @@ def get_sequential_chain():
     ])
 
     # Make the second chain using the refined prompt
+    refined_chain = refined_prompt | llm
 
     # Finally, the sequential part - combine the 2 chains and return the final chain!
+    sequential_chain = draft_chain | refined_chain
+    return sequential_chain
 
 # TODO: A Chain that stores memory so it can recall what was being talking
