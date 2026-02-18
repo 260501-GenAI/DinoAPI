@@ -1,6 +1,7 @@
 # This service will store different chains that help us query our LLM
 # A chain is sequence of actions that we can send to the LLM in one go.
 # LangCHAIN is all about building CHAINS that help us get good responses from the LLM
+from langchain_classic.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
 
@@ -56,4 +57,17 @@ def get_sequential_chain():
     sequential_chain = draft_chain | refined_chain
     return sequential_chain
 
-# TODO: A Chain that stores memory so it can recall what was being talking
+# A Chain that stores memory so it can recall what was being talked about
+def get_memory_chain():
+
+    # Create a memory object, an instance of ConversationBufferWindowMemory
+    # This Memory instance remembers the last "k" interactions
+    memory = ConversationBufferWindowMemory(k=3)
+
+    # Make a Prompt and Chain the old fashioned way... look how clunky
+
+    # Prompt
+
+    # Chain
+
+    # Return the chain with memory, invoked in the router endpoint
