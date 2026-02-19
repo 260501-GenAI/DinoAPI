@@ -91,3 +91,19 @@ def ingest_text(text:str):
 
 # A function that performs a similarity search on the vector store
 # Take the user input, turn it into a vector, and compare it to the vectors in the DB
+def search_dino_store(query:str, k:int=6):
+
+    # Get the vector store instance
+    store = get_dino_vector_store()
+
+    # Get and save the results of the similarity search (finding the most relevant docs)
+    results = store.similarity_search_with_score(query, k=k)
+
+    # Return the results
+    return [
+        {
+            "text": result[0].page_content, # The chunk text
+            "score": result[1] # The similarity score (lower is more similar)
+        }
+        for result in results
+    ]

@@ -16,4 +16,4 @@ class IngestTextRequest(BaseModel):
 @router.post("/ingest-text")
 async def ingest_user_text(input:IngestTextRequest):
     count = ingest_text(f"""{input.text}""")
-    return {"ingested chunks: " + count}
+    return {f"ingested chunks: {count}"}
