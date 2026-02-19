@@ -74,8 +74,7 @@ def ingest_text(text:str):
         })
 
         # Generate and attach the IDs to the chunk_ids list
-        chunk_ids.append(f"chunk_{index}")
-
+        chunk_ids.append(f"chunk_{index}_{hashlib.md5(chunk.encode("utf-8")).hexdigest()[:8]}")
 
     # Get the vector store instance
     store = get_dino_vector_store()
