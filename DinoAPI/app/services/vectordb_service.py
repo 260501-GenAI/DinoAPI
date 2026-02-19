@@ -1,3 +1,5 @@
+import hashlib
+
 from langchain_chroma import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.documents import Document
@@ -66,7 +68,8 @@ def ingest_text(text:str):
 
         # Generate and attach an ID to each chunk, then add it to the documents list
         documents.append({
-            "id": f"chunk_{index}",
+            # ID is chunk_index + a hash of the chunk text (to ensure uniqueness)
+            "id": f"chunk_{index}_{hashlib.md5(chunk.encode("utf-8")).hexdigest()[:8]}",
             "text": chunk,
         })
 
