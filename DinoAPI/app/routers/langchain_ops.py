@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 from langchain_community.document_loaders import TextLoader
+from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel
 
+from app.models.dino_model import DinoModel
 from app.services.langchain_service import get_basic_chain, get_sequential_chain, get_memory_chain
 
 # Same old router setup
@@ -50,3 +52,39 @@ async def refined_chat(chat:ChatInputModel):
 async def memory_chat(chat:ChatInputModel):
     # Just a one liner - The chain will remember the last "k" interactions automatically
     return memory_chain.invoke(input={"input":chat.input})
+
+# This endpoint uses an OUTPUT PARSER (PydanticOutputParser)
+# ...to send dino recommendations in Pydantic model format instead of raw text
+@router.post("/dino-recs")
+async def dino_recs(chat:ChatInputModel):
+
+    # Define a new prompt that instructs the LLM to give dino recommendations
+    # in a specific format we can use to turn into Pydantic
+    rec_prompt = f"""You give dinosaur recommendations based on user preferences. 
+    
+        User input: {chat.input}
+    
+        If the user does not provide preferences or ask questions about dino recs,
+        You ask it to provide info about what they like about dinosaurs
+        and encourage them to ask for recommendations.
+        
+         The user will tell you what they like, and you will respond with a recommendation.
+         Format the recommendation as a single JSON object:
+         {{
+            "species": (string) "The dinosaur's name"
+            "period": (string) "The geological period this dinosaur lived in",
+         }}
+
+        return ONLY the json, no extra text """
+
+    # Store the response for parsing
+    response = basic_chain.invoke(input={"input": rec_prompt})
+
+    return response
+
+    # # Pydantic has its own output parser in LangChain
+    # parser = PydanticOutputParser(pydantic_object=DinoModel)
+    #
+    # # Invoke the chain with the user's input and return the recommendations
+    # parsed_output = parser.parse(response.content)
+    # return parsed_output.items

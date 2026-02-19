@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import dino_router, user_router, langchain_ops
+from app.routers import dino_router, user_router, langchain_ops, vectordb_ops
 from app.services.db_connection import Base, engine
 
 # Create the DB tables on startup (if they don't already exist)
@@ -14,6 +14,7 @@ app = FastAPI()
 app.include_router(dino_router.router)
 app.include_router(user_router.router)
 app.include_router(langchain_ops.router)
+app.include_router(vectordb_ops.router)
 
 # Generic sample endpoint (greeting GET request)
 @app.get("/")
