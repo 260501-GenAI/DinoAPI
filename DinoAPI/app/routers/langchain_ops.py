@@ -48,4 +48,5 @@ async def refined_chat(chat:ChatInputModel):
 # This endpoint is just a chat endpoint WITH MEMORY!
 @router.post("/memory-chat")
 async def memory_chat(chat:ChatInputModel):
-    pass
+    # Just a one liner - The chain will remember the last "k" interactions automatically
+    return memory_chain.invoke(input={"input":chat.input})

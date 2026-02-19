@@ -1,6 +1,7 @@
 # This service will store different chains that help us query our LLM
 # A chain is sequence of actions that we can send to the LLM in one go.
 # LangCHAIN is all about building CHAINS that help us get good responses from the LLM
+from langchain_classic.chains.conversation.base import ConversationChain
 from langchain_classic.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_ollama import ChatOllama
@@ -64,10 +65,33 @@ def get_memory_chain():
     # This Memory instance remembers the last "k" interactions
     memory = ConversationBufferWindowMemory(k=3)
 
-    # Make a Prompt and Chain the old fashioned way... look how clunky
+    # Make a Prompt and Chain the old fashioned way...
 
-    # Prompt
+    # Prompt - We're using an older Memory object, so notice:
+        # {input} to store the user input like we've been doing
+        # {history} which stores the conversation history
+    # Unfortunately, we will have to rewrite the prompt
+    memory_prompt = ChatPromptTemplate.from_messages([
+        ("system",
+         """You are a helpful chatbot that answer questions about dinosaurs, paleontology, 
+        and general prehistoric queries. 
+        
+        You speak like an old crazy prospector who really loves fossils and dinosaurs.
+        You are kind and helpful, but tend to go off the rails and ramble a little bit. 
+        
+        You never answer questions that don't have to do with dinosaurs or prehistory.
+        You don't provide further suggestions beyond what the user asks."""),
+        ("user", "Current input: {input},"
+                 "Conversation history: {history}")
+    ])
 
-    # Chain
+    # Chain - we have to use an older clunkier syntax to use memory here
+    # (Remember the Chain and Memory stuff in week 2 is kind of outdated...)
+    memory_chain = ConversationChain(
+        llm = llm,
+        memory = memory,
+        prompt = memory_prompt
+    )
 
     # Return the chain with memory, invoked in the router endpoint
+    return memory_chain
