@@ -37,7 +37,7 @@ def get_vector_store(collection:str) -> Chroma:
 
 # A function that ingests documents into the vector store
 # (this is where text gets turned into vectors and stored in the DB)
-def ingest_text(text:str, collection:str):
+def ingest_text(collection:str, text:str):
 
     """
     This is gonna be a lot - to ingest text we need to:
