@@ -37,7 +37,7 @@ def get_vector_store(collection:str) -> Chroma:
 
 # A function that ingests documents into the vector store
 # (this is where text gets turned into vectors and stored in the DB)
-def ingest_text(text:str):
+def ingest_text(text:str, collection:str):
 
     """
     This is gonna be a lot - to ingest text we need to:
@@ -55,6 +55,7 @@ def ingest_text(text:str):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size = 500, # Each chunk will contain 500 characters
         chunk_overlap = 100, # Each chunk will overlap with its neighbor by 100 chars. Good for retaining context
+        separators=["\n\n", "\n"] # Helps the splitter with chunking - allows for line breaks
     )
     chunks = splitter.split_text(text)
 
@@ -66,18 +67,21 @@ def ingest_text(text:str):
     # Enumeration gives us an (index, value) pair when iterating over a list
     for index, chunk in enumerate(chunks):
 
+        # Define a unique ID for each chunk
+        ID = f"chunk_{index}_{hashlib.md5(chunk.encode("utf-8")).hexdigest()[:8]}"
+
         # Generate and attach an ID to each chunk, then add it to the documents list
         documents.append({
             # ID is chunk_index + a hash of the chunk text (to ensure uniqueness)
-            "id": f"chunk_{index}_{hashlib.md5(chunk.encode("utf-8")).hexdigest()[:8]}",
+            "id": ID,
             "text": chunk,
         })
 
         # Generate and attach the IDs to the chunk_ids list
-        chunk_ids.append(f"chunk_{index}_{hashlib.md5(chunk.encode("utf-8")).hexdigest()[:8]}")
+        chunk_ids.append(ID)
 
-    # Get the vector store instance
-    store = get_dino_vector_store()
+    # Get the vector store instance for the collection passed into the function
+    store = get_vector_store(collection)
 
     # Turn the documents into a list of LangChain Document object (vectorDB needs this)
     vector_docs = [
