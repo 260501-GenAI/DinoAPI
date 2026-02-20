@@ -63,3 +63,24 @@ async def dino_doc_rag(chat:ChatInputModel):
 
 
 # Endpoint for querying the LLM about archeology plans (a bit more formal)
+# TODO: we never actually changed the tone of the prompt cuz I ran out of time
+@router.post("/plans-doc-rag")
+async def plans_doc_rag(chat:ChatInputModel):
+    # Extract results from the VectorDB
+    results = search("plans_docs", chat.input, k=5)
+
+    # Quick prompt that tells the LLM the results of the search
+    # and asks it to respond to the user's query using those results
+    prompt = f"""
+    
+    Based on the following extracted info about upcoming archaeology plans,
+    Answer the user's query as best you can, using ONLY the extracted info
+    If there's no relevant info, you can say that
+    
+    Extracted Info: {results}
+    User Query: {chat.input}
+
+    """
+
+    # Invoke the chain with the prompt and return the response
+    return basic_chain.invoke(input={"input": prompt})
