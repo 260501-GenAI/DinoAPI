@@ -18,21 +18,21 @@ EMBEDDING = OllamaEmbeddings(model="nomic-embed-text")
 # We will initialize it as a dict which lets us manage multiple stores at once
 vector_store: dict[str, Chroma] = {}
 
-# A function that gets an instance of the Chroma Dino Vector Store
-    #(We could have other stores but this app will just have one for dino documents)
+# A function that gets an instance of the chosen Vector Store
 # Similar to how we needed get_db() in the db_connection service
-def get_dino_vector_store() -> Chroma:
+def get_vector_store(collection:str) -> Chroma:
 
     # Get (or create) the vector store from the global dict (vector_store)
-    if "dino_docs" not in vector_store:
-        vector_store["dino_docs"] = Chroma(
-            collection_name = "dino_docs", # remember a collection is just a grouping of embeddings
+    if collection not in vector_store:
+        vector_store[collection] = Chroma(
+            collection_name = collection, # remember a collection is just a grouping of embeddings
             embedding_function = EMBEDDING,
             persist_directory = PERSIST_DIRECTORY
         )
 
     # Return the vector store instance, which either already existed or got created in the if statement
-    return vector_store["dino_docs"]
+    return vector_store[collection]
+
 
 
 # A function that ingests documents into the vector store
