@@ -2,6 +2,8 @@ from typing import TypedDict, Any
 
 from langchain_ollama import ChatOllama
 
+from app.services.vectordb_service import search
+
 # This Service will define the State, Nodes, and Graph for our LangGraph implementation
 
 # First, just wanna define the LLM we'll use
@@ -43,10 +45,26 @@ def route_node(state:GraphState) -> GraphState:
     if any(word in query for word in ["plan", "plans", "boss", "digs"]):
         return {"route":"plans"}
 
-# Node that gets Dino data from VectorDB
+    # TODO: route to general chat if no keywords get matched
 
+
+# Node that gets Dino data from VectorDB
+def search_dinos(state:GraphState) -> GraphState:
+
+    # Simple similarity search like we've done before, using the query stored in state
+    query = state.get("query", "")
+    results = search("dino_docs", query, k=5)
+
+    # Save the results in state!
+    return {"docs":results}
 
 # Node that gets Plans data from VectorDB
+def search_plans(state:GraphState) -> GraphState:
 
+    query = state.get("query", "")
+    results = search("plans_docs", query, k=5)
+
+    # Save the results in state!
+    return {"docs":results}
 
 # =====================(END OF NODE DEFINITIONS)=======================
