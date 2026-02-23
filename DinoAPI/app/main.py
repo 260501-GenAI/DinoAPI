@@ -20,3 +20,9 @@ app.include_router(vectordb_ops.router)
 @app.get("/")
 async def sample_endpoint():
     return {"message":"Hello from FastAPI!"}
+
+
+
+# A for loop that loops 100 times and prints "hello"
+# for i in range(100):
+#     print("hello")
