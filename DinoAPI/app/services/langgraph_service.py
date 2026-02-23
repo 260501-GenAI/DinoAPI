@@ -67,4 +67,31 @@ def search_plans(state:GraphState) -> GraphState:
     # Save the results in state!
     return {"docs":results}
 
+# Node that uses the stored vectorDB docs to respond to the user
+def answer_with_docs(state:GraphState) -> GraphState:
+
+    # Ultimately, this node just invokes the LLM
+    # The only difference is it's using the docs stored in state
+
+    # First, extract the query and docs from state
+    query = state.get("query", "")
+    docs = state.get("docs", [])
+
+    # Set up a prompt - basic, no real personality
+    prompt=(
+    f"""
+    You are a friendly chatbot that takes search results from a VectorDB
+    Answer the user's query in a concise but thorough way
+    
+    Search Results: {docs}
+    User Query: {query}
+    Answer: 
+    """
+    )
+
+    # Invoke the LLM! And save the answer in state
+    response = llm.invoke(prompt)
+    return {"answer":response.text}
+
+
 # =====================(END OF NODE DEFINITIONS)=======================
