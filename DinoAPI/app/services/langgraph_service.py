@@ -1,6 +1,7 @@
 from typing import TypedDict, Any
 
 from langchain_ollama import ChatOllama
+from langgraph.graph import StateGraph
 
 from app.services.vectordb_service import search
 
@@ -102,15 +103,37 @@ def answer_with_docs(state:GraphState) -> GraphState:
 def build_graph():
 
     # First, define the graph builder using the State Graph
+    build = StateGraph(GraphState)
 
     # Register each node
+    build.add_node("route", route_node)
+    build.add_node("search_dinos", search_dinos)
+    build.add_node("search_plans", search_plans)
+    build.add_node("answer_with_docs", answer_with_docs)
 
     # Set the node that starts the graph (router node in this case)
+    build.set_entry_point("route")
 
     # Set up the branching nodes (conditional edges)
+    # A conditional edge is a way to define nodes that MAY run based on a condition
+    build.add_conditional_edges(
+        "route",
+        # This lambda function returns the key we use to choose an edge
+        # We're just saying "use the route key" while avoiding writing a whole new function
+        lambda state: state["route"],
+
+        # Map that connects the possible "route" values to the appropriate note
+        {
+            "dinos":"search_dinos",
+            "plans":"search_plans"
+        }
+    )
 
     # After either retrieval node, we ALWAYS want to go to the answer node
 
     # Define potential terminal node (stopping points) for the graph
 
     # Return the built graph!
+
+
+# Make a single graph instance using the build_graph function
