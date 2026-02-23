@@ -20,3 +20,33 @@ class GraphState(TypedDict, total=False): #total=False makes all fields optional
     answer:str # The LLM's answer to the user's query
     #TODO: memory manager field
 
+# ========================(NODE DEFINITIONS)============================
+
+# Think of Nodes like steps in our Graph. Each Node has a specific responsibility.
+# Nodes have read/write access to the fields in State
+
+# Our first node - The ROUTING Node
+# The user will pass in a query, and depending on what they're asking, go to:
+    # A node that searches the dino_docs VectorDB collection
+    # A node that searches the plans_docs VectorDB collection
+    # A node that just does general chat (query unrelated to dinos/plans)
+def route_node(state:GraphState) -> GraphState:
+
+    # Get the user's query from state (stored for us when the graph is invoked)
+    query = state.get("query", "") # Default to empty string if query is not set
+
+    # VERY basic keyword matching (for now) to decide the route
+    # Later, we'll let the LLM decide which route to go down
+    if any(word in query for word in ["dino", "dinosaur", "dinosaurs"]):
+        return {"route":"dinos"}
+
+    if any(word in query for word in ["plan", "plans", "boss", "digs"]):
+        return {"route":"plans"}
+
+# Node that gets Dino data from VectorDB
+
+
+# Node that gets Plans data from VectorDB
+
+
+# =====================(END OF NODE DEFINITIONS)=======================
