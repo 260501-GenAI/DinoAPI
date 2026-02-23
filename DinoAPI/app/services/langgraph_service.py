@@ -95,3 +95,22 @@ def answer_with_docs(state:GraphState) -> GraphState:
 
 
 # =====================(END OF NODE DEFINITIONS)=======================
+
+# The function that BUILDS OUR GRAPH - a Graph is just a series of steps
+# The Nodes make up this "series of steps"
+# So we have to define the execution order and branch points for these nodes
+def build_graph():
+
+    # First, define the graph builder using the State Graph
+
+    # Register each node
+
+    # Set the node that starts the graph (router node in this case)
+
+    # Set up the branching nodes (conditional edges)
+
+    # After either retrieval node, we ALWAYS want to go to the answer node
+
+    # Define potential terminal node (stopping points) for the graph
+
+    # Return the built graph!
