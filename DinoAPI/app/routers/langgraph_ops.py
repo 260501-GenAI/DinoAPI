@@ -18,6 +18,10 @@ class ChatInputModel(BaseModel):
     # TODO: general chat
 @router.post("/langgraph")
 async def langgraph_chat(chat:ChatInputModel):
+
     result = langgraph.invoke({"query":chat.input})
 
-    return result
+    return {
+        "route": result.get("route"),
+        "response": result.get("answer")
+    }
