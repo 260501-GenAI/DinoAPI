@@ -133,6 +133,7 @@ def build_graph():
     build.add_node("search_dinos", search_dinos)
     build.add_node("search_plans", search_plans)
     build.add_node("answer_with_docs", answer_with_docs)
+    build.add_node("general_chat", general_chat_node)
 
     # Set the node that starts the graph (router node in this case)
     build.set_entry_point("route")
@@ -148,7 +149,8 @@ def build_graph():
         # Map that connects the possible "route" values to the appropriate note
         {
             "dinos":"search_dinos",
-            "plans":"search_plans"
+            "plans":"search_plans",
+            "chat":"general_chat"
         }
     )
 
@@ -158,6 +160,7 @@ def build_graph():
 
     # Define potential terminal node (stopping points) for the graph
     build.set_finish_point("answer_with_docs")
+    build.set_finish_point("general_chat")
 
     # Return the built graph!
     return build.compile()
