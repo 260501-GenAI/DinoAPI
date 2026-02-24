@@ -139,7 +139,6 @@ def build_graph():
     # Return the built graph!
     return build.compile()
 
-
 # Make a single graph instance using the build_graph function
 # This is what we'll invoke in our endpoints!
 langgraph = build_graph()
