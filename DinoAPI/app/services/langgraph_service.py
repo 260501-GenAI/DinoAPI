@@ -46,7 +46,7 @@ def route_node(state:GraphState) -> GraphState:
     if any(word in query for word in ["plan", "plans", "boss", "digs"]):
         return {"route":"plans"}
 
-    # TODO: route to general chat if no keywords get matched
+    # TODO: route to general chat node if no keywords get matched
 
 
 # Node that gets Dino data from VectorDB
@@ -130,10 +130,16 @@ def build_graph():
     )
 
     # After either retrieval node, we ALWAYS want to go to the answer node
+    build.add_edge("search_dinos", "answer_with_docs")
+    build.add_edge("search_plans", "answer_with_docs")
 
     # Define potential terminal node (stopping points) for the graph
+    build.add_edge("answer_with_docs")
 
     # Return the built graph!
+    return build.compile()
 
 
 # Make a single graph instance using the build_graph function
+# This is what we'll invoke in our endpoints!
+langgraph = build_graph()
