@@ -134,7 +134,7 @@ def build_graph():
     build.add_edge("search_plans", "answer_with_docs")
 
     # Define potential terminal node (stopping points) for the graph
-    build.add_edge("answer_with_docs")
+    build.set_finish_point("answer_with_docs")
 
     # Return the built graph!
     return build.compile()
