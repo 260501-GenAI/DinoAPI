@@ -46,7 +46,8 @@ def route_node(state:GraphState) -> GraphState:
     if any(word in query for word in ["plan", "plans", "boss", "digs"]):
         return {"route":"plans"}
 
-    # TODO: route to general chat node if no keywords get matched
+    # Route to general chat node if no keywords get matched
+    return {"route":"chat"}
 
 
 # Node that gets Dino data from VectorDB
@@ -93,6 +94,28 @@ def answer_with_docs(state:GraphState) -> GraphState:
     # Invoke the LLM! And save the answer in state
     response = llm.invoke(prompt)
     return {"answer":response.text}
+
+# Here's the general chat node that we fall back to if the query isn't related to vector data
+def general_chat_node(state:GraphState) -> GraphState:
+
+    # Get the user's query from state
+    query = state.get("query", "")
+
+    # Define the prompt
+    prompt=(
+        f"""
+        You are a friendly chatbot that responds to general queries
+        Answer the user's query in a concise but thorough way
+        
+        User Query: {query}
+        Answer: 
+        """
+    )
+
+    # Return the invocation and store it in State
+    response = llm.invoke(prompt)
+    return {"answer":response.text}
+
 
 
 # =====================(END OF NODE DEFINITIONS)=======================
