@@ -3,6 +3,7 @@ from typing import TypedDict, Any
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from langchain_ollama import ChatOllama
+from langgraph.graph import StateGraph
 
 from app.services.vectordb_service import search
 
@@ -151,3 +152,46 @@ def general_chat_node(state:GraphState) -> GraphState:
     # Return the invocation and store it in State
     response = llm.invoke(prompt)
     return {"answer":response.text}
+
+
+# The Graph Builder (Mostly the same) -----------------
+# Uses the new agentic router and the tools are no longer nodes. Also the conditional edge has different outcomes
+def build_agentic_graph():
+
+    # First, define the graph builder using the State Graph
+    build = StateGraph(GraphState)
+
+    # Register each node
+    build.add_node("route", agentic_router_node)
+    build.add_node("answer_with_docs", answer_with_docs)
+    build.add_node("general_chat", general_chat_node)
+
+    # Set the node that starts the graph (router node in this case)
+    build.set_entry_point("route")
+
+    # Set up the branching nodes (conditional edges)
+    # A conditional edge is a way to define nodes that MAY run based on a condition
+    build.add_conditional_edges(
+        "route",
+        # This lambda function returns the key we use to choose an edge
+        # We're just saying "use the route key" while avoiding writing a whole new function
+        lambda state: state["route"],
+
+        # Map that connects the possible "route" values to the appropriate note
+        # This is route : node
+            # ex: if the route is "chat", invoke the "general_chat_node
+        {
+            "chat":"general_chat_node",
+            "answer_with_docs":"answer_with_docs"
+        }
+    )
+
+    # Define potential terminal node (stopping points) for the graph
+    build.set_finish_point("answer_with_docs")
+    build.set_finish_point("general_chat_node")
+
+    # Return the built graph!
+    return build.compile()
+
+# Like last time, create a Singleton instance of the graph that we can call in our Router
+agentic_graph = build_agentic_graph()
