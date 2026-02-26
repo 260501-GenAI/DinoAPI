@@ -47,7 +47,11 @@ def search_plans_docs(query:str) -> list[dict[str, Any]]:
 # We need some variables that will make the agent aware of the tools
 
 # List of available tools
+TOOLS = [search_dino_docs, search_plans_docs]
 
 # Map tool functions to their names
+# We need these names so the agentic router (below) can identify what tool to call
+TOOL_MAP = {tool.name: tool for tool in TOOLS}
 
 # Get a version of the LLM that's aware of the tools (this is the LLM we'll invoke)
+llm_with_tools = llm.bind_tools(TOOLS)
