@@ -86,3 +86,20 @@ def agentic_router_node(state:GraphState) -> GraphState:
 
     # Invoke the LLM with tools using the prompt
     # The LLM will decide whether to use a tool, and which tool to use
+    agentic_response = llm_with_tools.invoke(messages)
+
+    # If there was no tool call, route will equal "chat" for general chats
+    if agentic_response.tool_calls == []:
+        return {"route":"chat"}
+
+    # If there WAS a tool call, invoke the tool, and store results in the appropriate route
+    tool_call = agentic_response.tool_calls[0] # Get the first tool call (there should only be one)
+    tool_name = tool_call["name"] # Extracting the name of the tool that was called
+    results = TOOL_MAP[tool_name].invoke({"query":query})
+
+    # Automatically set the route to the answer_with_context node and set the docs after the tool is done
+    return {
+        "route":"answer_with_docs",
+        "docs":results
+    }
+
