@@ -1,5 +1,6 @@
 from typing import TypedDict, Any
 
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from langchain_ollama import ChatOllama
 
@@ -55,3 +56,33 @@ TOOL_MAP = {tool.name: tool for tool in TOOLS}
 
 # Get a version of the LLM that's aware of the tools (this is the LLM we'll invoke)
 llm_with_tools = llm.bind_tools(TOOLS)
+
+# NODES (These still exist! But they won't be part of the agent's decision options)
+
+# Route node (THIS IS THE AGENTIC PART! THE LLM WILL MAKE THE ROUTING DECISION!!)
+def agentic_router_node(state:GraphState) -> GraphState:
+
+    # Get the user's query from state
+    query = state.get("query", "")
+
+    # Define an agentic prompt for the agentic router
+    # Using a different prompting style just to show it
+    messages = [
+        SystemMessage(content=(
+            """
+            You are an agentic router that decides which tool to use based on the user's query.
+            You may not have to call a tool!!! If a user's query is not related to a tool, that's OK.
+            
+            You have access to the following tools:
+            1. search_dino_docs: Use this tool is the user is asking about people's favorite dinosaurs.
+            2. search_plans_docs: Use this tool if the user is asking about upcoming digs or archaeology plans.
+            
+            If neither tool applies to the query, it's just a general chat - DO NOT CALL A TOOL.
+            If you call a tool, call ONLY ONE tool.
+            """
+        )),
+        HumanMessage(content=query)
+    ]
+
+    # Invoke the LLM with tools using the prompt
+    # The LLM will decide whether to use a tool, and which tool to use
